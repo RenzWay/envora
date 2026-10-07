@@ -39,7 +39,7 @@ class EnvironmentController {
 
       sources = await _service.getSources();
 
-      hasPendingChanges = false;
+      hasPendingChanges = await _service.needsBashrcSync();
     } catch (e) {
       error = e.toString();
     } finally {

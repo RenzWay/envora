@@ -102,6 +102,29 @@ class EnvironmentService {
     return variables;
   }
 
+  Future<bool> needsBashrcSync() async {
+    final content = await _bashrcFile.exists()
+        ? await _bashrcFile.readAsString()
+        : '';
+    final variables = await getManagedEnvironmentVariables();
+    final paths = await getManagedPathEntries();
+
+    return (variables.isNotEmpty &&
+            !_hasManagedBlock(
+              content,
+              _envoraEnvironmentStart,
+              _envoraEnvironmentEnd,
+              _envoraEnvironmentLoaded,
+            )) ||
+        (paths.isNotEmpty &&
+            !_hasManagedBlock(
+              content,
+              _envoraPathStart,
+              _envoraPathEnd,
+              _envoraPathLoaded,
+            ));
+  }
+
   Future<void> saveManagedEnvironmentVariables(
     List<EnvironmentVariable> variables,
   ) async {
@@ -172,6 +195,22 @@ class EnvironmentService {
 
     await _backupFile(file);
     await file.writeAsString(content);
+  }
+
+  bool _hasManagedBlock(
+    String content,
+    String startMarker,
+    String endMarker,
+    String loadedMarker,
+  ) {
+    final startIndex = content.indexOf(startMarker);
+    final endIndex = content.indexOf(endMarker);
+
+    if (startIndex == -1 || endIndex <= startIndex) {
+      return false;
+    }
+
+    return content.substring(startIndex, endIndex).contains('$loadedMarker=1');
   }
 
   Future<void> _backupFile(File file) async {
