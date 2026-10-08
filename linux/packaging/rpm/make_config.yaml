@@ -1,0 +1,10 @@
+display_name: Envora
+package_name: envora
+license: GPL-3.0-only
+maintainer:
+  name: renzway
+  email: dikakamza@gmail.com
+priority: optional
+section: x11
+installed_size: 24588
+icon: assets/envora.png
